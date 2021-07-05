@@ -13,7 +13,7 @@ func FixtureDir() (fixturedir string) {
 	if !ok {
 		panic("Can not get filename")
 	}
-	fixturedir, err := filepath.Abs(path.Join(path.Dir(filename), "..", "..", "..", "test", "fixtures"))
+	fixturedir, err := filepath.Abs(path.Join(path.Dir(filename), "..", "..", "..", "fixtures"))
 	if err != nil {
 		panic(err)
 	}
