@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"${GOSERVER}/${GOGROUP}/${PROJECT_NAME}/internal/resources/errs"
+	"${GOSERVER}/${GOGROUP}/${PROJECT_NAME}/internal/resources/file"
 )
 
 // Atomic atomically writes files by using a temp file.
@@ -22,12 +22,10 @@ type Atomic struct {
 // New creates a io.WriteCloser to atomically write files.
 func New(a *Atomic) *Atomic {
 	if a == nil {
-		a = &Atomic{
-			dst: dst,
-		}
+		a = &Atomic{}
 	}
 	if a.File == "" {
-		panic(`file is not set`)
+		panic(`file not set`)
 	}
 	a.dst = a.File
 	return a
@@ -42,7 +40,7 @@ func (a *Atomic) Close() error {
 		}
 	}
 	a.f.Close()
-	err := Move(a.f.Name(), a.dst)
+	err := file.Move(a.f.Name(), a.dst)
 	if err != nil {
 		return err
 	}
@@ -56,7 +54,9 @@ func (a *Atomic) Copy(rdr io.Reader) (written int64, err error) {
 		return 0, err
 	}
 	written, err = io.Copy(f, rdr)
-	errs.Panic(err)
+	if err != nil {
+		return 0, fmt.Errorf(`copy error: %w`, err)
+	}
 	a.written += written
 	return written, nil
 }
@@ -68,8 +68,8 @@ func (a *Atomic) Write(data []byte) (written int, err error) {
 		return 0, err
 	}
 	written, err = f.Write(data)
-	if errs.LogF("Can not write to temporary file: %w", err) {
-		return written, err
+	if err != nil {
+		return 0, fmt.Errorf(`write error: %w`, err)
 	}
 	return written, nil
 }
@@ -80,8 +80,8 @@ func (a *Atomic) tempfile() (*os.File, error) {
 		return a.f, nil
 	}
 	f, err := ioutil.TempFile("", "")
-	if errs.LogF("Can not open temp file: %v", err) {
-		return nil, err
+	if err != nil {
+		return nil, fmt.Errorf(`tempfile error: %w`, err)
 	}
 	a.f = f
 	return a.f, nil
