@@ -1,2 +1,6 @@
 name: go
 description: Go template to build command lines
+envs:
+    GOSERVER: This is the "server" part of the import and go.mod files. EG for `import "github.com/mygroup/myproject"` then GOSERVER=github.com
+    GOGROUP: This is the "group" part of the import and go.mod files. EG for `import "github.com/mygroup/myproject"` then GOGROUP=mygroup
+    GOVERSION: This is the version set in go.mod. EG for a go.mod with `go 1.16` then GOVERSION=1.16
