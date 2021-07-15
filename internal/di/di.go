@@ -14,10 +14,10 @@ import (
 
 // DI dependency injection struct
 type DI struct {
+	ExitMode int          // Exit mode one of exit.MNone or exit.Panic
+	LogLevel logger.Level // Logger level
 	Stderr   io.Writer    // Stderr
 	Stdout   io.Writer    // Stdout
-	LogLevel logger.Level // Logger level
-	ExitMode int          // Exit mode one of exit.MNone or exit.Panic
 
 	/* Cache objects */
 	cacheErrHandler  *errs.Handler
@@ -25,8 +25,22 @@ type DI struct {
 	cacheLogFile     *os.File
 }
 
-// Defaults add defaults to DI
-func Defaults(di *DI) *DI {
+// Options constructor options
+type Options struct {
+	ExitMode int          // Exit mode one of exit.MNone or exit.Panic
+	LogLevel logger.Level // Logger level
+	Stderr io.Writer      // Stderr - defaults to os.Stderr
+	Stdout io.Writer      // Stdout - defaults to os.Stdout
+}
+
+// New DI container constructor
+func New(opts Options) *DI {
+	di := &DI{
+		ExitMode: opts.ExitMode,
+		LogLevel: opts.LogLevel,
+		Stderr: opts.Stderr,
+		Stdout: opts.Stdout,
+	}
 	if di.Stderr == nil {
 		di.Stderr = os.Stderr
 	}
