@@ -35,7 +35,7 @@ GODIRS = $(shell find . -maxdepth 1 -mindepth 1 -type d | egrep 'cmd|internal|pk
 
 .PHONY: help
 help: ## Print Help
-	@maker --menu=Makefile
+	@egrep "(^### |^\S+:.*##\s)" Makefile | sed 's/^###\s*//' | sed 's/^_//' | sed 's/^\(\S*\)\:.*##\s*\(.*\)/  \1 - \2/'
 
 ### DEVELOPMENT
 
