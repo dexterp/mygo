@@ -5,12 +5,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"testing"
 
 	errs "${GOSERVER}/${GOGROUP}/${PROJECT_NAME}/internal/resources/errs"
 	"${GOSERVER}/${GOGROUP}/${PROJECT_NAME}/internal/resources/exit"
-	"${GOSERVER}/${GOGROUP}/${PROJECT_NAME}/internal/resources/logger"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +18,7 @@ func setup() (*errs.Handler, *bytes.Buffer) {
 	eh := &exit.Handler{
 		Mode: exit.MPanic,
 	}
-	e := errs.New(eh, logger.New(buf, "", log.LstdFlags, logger.ErrorLevel, eh))
+	e := errs.New(eh, buf)
 
 	return e, buf
 }

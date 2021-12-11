@@ -3,28 +3,26 @@ package errs
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"sync"
 
-	"log"
-
 	"${GOSERVER}/${GOGROUP}/${PROJECT_NAME}/internal/resources/exit"
-	"${GOSERVER}/${GOGROUP}/${PROJECT_NAME}/internal/resources/logger"
 )
 
 // Handler error handling
 type Handler struct {
-	ex     exit.HandlerIface  `validate:"required"` // Exit handler
-	Logger logger.OutputIface `validate:"required"` // Default logger
+	ex     exit.HandlerIface `validate:"required"` // Exit handler
 	mu     *sync.Mutex
+	writer io.Writer
 }
 
 // New return a *Handler object.
-func New(eh *exit.Handler, lgr logger.OutputIface) *Handler {
+func New(eh *exit.Handler, writer io.Writer) *Handler {
 	return &Handler{
 		ex:     eh,
-		Logger: lgr,
 		mu:     &sync.Mutex{},
+		writer: writer,
 	}
 }
 
@@ -70,14 +68,7 @@ func (e *Handler) FatalF(format string, v ...interface{}) { // nolint
 }
 
 func (e *Handler) hasErrPrint(err error) bool {
-	if err == nil {
-		return false
-	}
-	o := e.Logger.Output(3, err.Error())
-	if o != nil {
-		panic(o)
-	}
-	return true
+	return err != nil
 }
 
 func (e *Handler) hasErrPrintf(format string, v ...interface{}) bool {
@@ -91,8 +82,7 @@ func (e *Handler) hasErrPrintf(format string, v ...interface{}) bool {
 	if !hasError {
 		return false
 	}
-	out := fmt.Errorf(format, v...)
-	e.Logger.Output(3, out.Error()) // nolint
+	fmt.Fprintf(os.Stderr, format, v...)
 	return true
 }
 
@@ -147,8 +137,7 @@ func makeErrors() *Handler {
 		Mode: exit.ExitMode,
 	}
 	e := &Handler{
-		ex:     eh,
-		Logger: logger.New(os.Stderr, "", log.LstdFlags, logger.ErrorLevel, eh),
+		ex: eh,
 	}
 	return e
 }
