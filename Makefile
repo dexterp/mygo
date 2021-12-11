@@ -23,7 +23,6 @@ ROOT = $(shell pwd)
 
 # Go
 GOMODOPTS = GO111MODULE=on
-GOGETOPTS = GO111MODULE=off
 GOFILES := $(shell find cmd pkg internal src -name '*.go' 2> /dev/null)
 GODIRS = $(shell find . -maxdepth 1 -mindepth 1 -type d | egrep 'cmd|internal|pkg|api')
 
@@ -61,7 +60,6 @@ clean: ## Reset project to original state
 .PHONY: test
 test: ## Test
 	$(MAKE) test_setup
-	$(MAKE) goversion
 	$(MAKE) lint
 	@echo FEATURE FLAGS ENABLED
 	FF_ENABLED=true $(MAKE) _test_fflags
@@ -82,10 +80,6 @@ _test_std:
 .PHONY: _test_fflags
 _test_fflags:
 	$(MAKE) unit
-
-.PHONY: goversion
-goversion:
-	@go version | grep go1.16
 
 .PHONY: _unit
 _unit:
